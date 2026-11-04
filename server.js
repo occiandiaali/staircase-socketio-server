@@ -125,6 +125,7 @@ io.on("connection", (socket) => {
 
       const playerData = {
         id: socket.id,
+        userId: userId || null,
         username: username || "Tycoon",
         gender: gender || "male",
         wallet: parseFloat(wallet) || 100.0,
@@ -168,6 +169,40 @@ io.on("connection", (socket) => {
         z: p.z,
         yaw: p.yaw,
         isMoving: p.isMoving,
+      });
+    }
+  });
+
+  // Handle real-time money transfer broadcasts
+  socket.on("transferCompleted", (data) => {
+    const r = socket.currentRoom;
+    if (r && rooms[r]) {
+      // Update sender wallet in room state
+      if (rooms[r][socket.id]) {
+        rooms[r][socket.id].wallet = data.newSenderWallet;
+      }
+
+      // Find recipient in the room and update their wallet in room state
+      for (const sId in rooms[r]) {
+        if (
+          rooms[r][sId].username.toLowerCase() ===
+          data.recipientUsername.toLowerCase()
+        ) {
+          rooms[r][sId].wallet = data.recipientNewWallet;
+          // Notify the recipient directly
+          io.to(sId).emit("walletUpdated", {
+            newWallet: data.recipientNewWallet,
+          });
+          break;
+        }
+      }
+
+      // Broadcast room-wide wallet sync so remote HUDs update instantly
+      io.to(r).emit("roomWalletsSynced", {
+        senderId: socket.id,
+        senderWallet: data.newSenderWallet,
+        recipientUsername: data.recipientUsername,
+        recipientWallet: data.recipientNewWallet,
       });
     }
   });
