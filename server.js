@@ -108,34 +108,38 @@ const rooms = {};
 io.on("connection", (socket) => {
   console.log(`[Connect] Client connected: ${socket.id}`);
 
-  socket.on("joinRoom", ({ roomName, username, gender, wallet }) => {
-    socket.join(roomName);
+  socket.on(
+    "joinRoom",
+    ({ roomName, username, gender, wallet, avatar_data }) => {
+      socket.join(roomName);
 
-    if (!rooms[roomName]) rooms[roomName] = {};
+      if (!rooms[roomName]) rooms[roomName] = {};
 
-    const playerData = {
-      id: socket.id,
-      username: username || "Tycoon",
-      gender: gender || "male",
-      wallet: parseFloat(wallet) || 100.0,
-      x: (Math.random() - 0.5) * 6,
-      y: 0,
-      z: (Math.random() - 0.5) * 6,
-      yaw: 0,
-    };
+      const playerData = {
+        id: socket.id,
+        username: username || "Tycoon",
+        gender: gender || "male",
+        wallet: parseFloat(wallet) || 100.0,
+        avatar_data: avatar_data || {},
+        x: (Math.random() - 0.5) * 6,
+        y: 0,
+        z: (Math.random() - 0.5) * 6,
+        yaw: 0,
+      };
 
-    rooms[roomName][socket.id] = playerData;
-    socket.currentRoom = roomName;
+      rooms[roomName][socket.id] = playerData;
+      socket.currentRoom = roomName;
 
-    // Send existing players in this room to the new joining player
-    socket.emit("currentPlayers", rooms[roomName]);
+      // Send existing players in this room to the new joining player
+      socket.emit("currentPlayers", rooms[roomName]);
 
-    // Notify other players in the same room
-    socket.to(roomName).emit("playerJoined", playerData);
-    console.log(
-      `[Join] ${playerData.username} (${socket.id}) joined ${roomName}`,
-    );
-  });
+      // Notify other players in the same room
+      socket.to(roomName).emit("playerJoined", playerData);
+      console.log(
+        `[Join] ${playerData.username} (${socket.id}) joined ${roomName}`,
+      );
+    },
+  );
 
   socket.on("updatePosition", (data) => {
     const r = socket.currentRoom;
