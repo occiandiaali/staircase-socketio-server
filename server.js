@@ -95,10 +95,17 @@ const app = express();
 app.use(cors());
 
 const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
+// });
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: ["https://makemoney.occiandiaali.com", "http://localhost"], // Add your live domain
     methods: ["GET", "POST"],
+    credentials: true,
   },
 });
 
@@ -108,49 +115,90 @@ const rooms = {};
 io.on("connection", (socket) => {
   console.log(`[Connect] Client connected: ${socket.id}`);
 
-  socket.on(
-    "joinRoom",
-    ({
+  // socket.on(
+  //   "joinRoom",
+  //   ({
+  //     roomName,
+  //     userId,
+  //     username,
+  //     gender,
+  //     wallet,
+  //     target_amt,
+  //     deadline,
+  //     avatar_data,
+  //   }) => {
+  //     socket.join(roomName);
+
+  //     if (!rooms[roomName]) rooms[roomName] = {};
+
+  //     const playerData = {
+  //       id: socket.id,
+  //       userId: userId || null,
+  //       username: username || "Tycoon",
+  //       gender: gender || "male",
+  //       wallet: parseFloat(wallet) || 100.0,
+  //       target_amt: parseFloat(target_amt) || 0.0,
+  //       deadline: deadline || null,
+  //       avatar_data: avatar_data || {},
+  //       x: (Math.random() - 0.5) * 6,
+  //       y: 0,
+  //       z: (Math.random() - 0.5) * 6,
+  //       yaw: 0,
+  //     };
+
+  //     rooms[roomName][socket.id] = playerData;
+  //     socket.currentRoom = roomName;
+
+  //     // Send existing players in this room to the new joining player
+  //     socket.emit("currentPlayers", rooms[roomName]);
+
+  //     // Notify other players in the same room
+  //     socket.to(roomName).emit("playerJoined", playerData);
+  //     console.log(
+  //       `[Join] ${playerData.username} (${socket.id}) joined ${roomName}`,
+  //     );
+  //   },
+  // );
+  // Inside server.js -> socket.on("joinRoom", (data) => { ... })
+  socket.on("joinRoom", (data) => {
+    const {
       roomName,
+      userId,
       username,
       gender,
       wallet,
       target_amt,
       deadline,
       avatar_data,
-    }) => {
-      socket.join(roomName);
+    } = data;
+    socket.join(roomName);
 
-      if (!rooms[roomName]) rooms[roomName] = {};
+    if (!rooms[roomName]) rooms[roomName] = {};
 
-      const playerData = {
-        id: socket.id,
-        userId: userId || null,
-        username: username || "Tycoon",
-        gender: gender || "male",
-        wallet: parseFloat(wallet) || 100.0,
-        target_amt: parseFloat(target_amt) || 0.0,
-        deadline: deadline || null,
-        avatar_data: avatar_data || {},
-        x: (Math.random() - 0.5) * 6,
-        y: 0,
-        z: (Math.random() - 0.5) * 6,
-        yaw: 0,
-      };
+    const playerData = {
+      id: socket.id,
+      userId: userId || socket.id, // <-- Safe fallback if undefined
+      username: username || "Tycoon",
+      gender: gender || "male",
+      wallet: parseFloat(wallet) || 100.0,
+      target_amt: parseFloat(target_amt) || 0.0,
+      deadline: deadline || null,
+      avatar_data: avatar_data || {},
+      x: (Math.random() - 0.5) * 6,
+      y: 0,
+      z: (Math.random() - 0.5) * 6,
+      yaw: 0,
+    };
 
-      rooms[roomName][socket.id] = playerData;
-      socket.currentRoom = roomName;
+    rooms[roomName][socket.id] = playerData;
+    socket.currentRoom = roomName;
 
-      // Send existing players in this room to the new joining player
-      socket.emit("currentPlayers", rooms[roomName]);
-
-      // Notify other players in the same room
-      socket.to(roomName).emit("playerJoined", playerData);
-      console.log(
-        `[Join] ${playerData.username} (${socket.id}) joined ${roomName}`,
-      );
-    },
-  );
+    socket.emit("currentPlayers", rooms[roomName]);
+    socket.to(roomName).emit("playerJoined", playerData);
+    console.log(
+      `[Join] ${playerData.username} (${socket.id}) joined ${roomName}`,
+    );
+  });
 
   socket.on("updatePosition", (data) => {
     const r = socket.currentRoom;
