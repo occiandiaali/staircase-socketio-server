@@ -110,7 +110,15 @@ io.on("connection", (socket) => {
 
   socket.on(
     "joinRoom",
-    ({ roomName, username, gender, wallet, avatar_data }) => {
+    ({
+      roomName,
+      username,
+      gender,
+      wallet,
+      target_amt,
+      deadline,
+      avatar_data,
+    }) => {
       socket.join(roomName);
 
       if (!rooms[roomName]) rooms[roomName] = {};
@@ -120,6 +128,8 @@ io.on("connection", (socket) => {
         username: username || "Tycoon",
         gender: gender || "male",
         wallet: parseFloat(wallet) || 100.0,
+        target_amt: parseFloat(target_amt) || 0.0,
+        deadline: deadline || null,
         avatar_data: avatar_data || {},
         x: (Math.random() - 0.5) * 6,
         y: 0,
