@@ -159,6 +159,7 @@ io.on("connection", (socket) => {
       p.y = data.y;
       p.z = data.z;
       p.yaw = data.yaw;
+      p.isMoving = data.isMoving || false;
 
       socket.to(r).emit("playerMoved", {
         id: socket.id,
@@ -166,6 +167,7 @@ io.on("connection", (socket) => {
         y: p.y,
         z: p.z,
         yaw: p.yaw,
+        isMoving: p.isMoving,
       });
     }
   });
