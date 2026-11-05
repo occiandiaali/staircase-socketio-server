@@ -221,6 +221,18 @@ io.on("connection", (socket) => {
     }
   });
 
+  // Listen for energy updates from clients and broadcast to others in the room
+  socket.on("updateEnergy", (data) => {
+    const r = socket.currentRoom;
+    if (r && rooms[r] && rooms[r][socket.id]) {
+      rooms[r][socket.id].energy = data.energy;
+      socket.to(r).emit("playerEnergyUpdated", {
+        id: socket.id,
+        energy: data.energy,
+      });
+    }
+  });
+
   // Handle real-time money transfer broadcasts
   socket.on("transferCompleted", (data) => {
     const r = socket.currentRoom;
