@@ -200,6 +200,39 @@ io.on("connection", (socket) => {
     );
   });
 
+  // New listener
+  // Handle player entering the public banking hall
+  socket.on("joinBankRoom", (data) => {
+    const roomName = "bank_room";
+    socket.join(roomName);
+
+    if (!rooms[roomName]) rooms[roomName] = {};
+
+    const playerData = {
+      id: socket.id,
+      userId: data.userId || socket.id,
+      username: data.username || "Tycoon",
+      wallet: parseFloat(data.wallet) || 100.0,
+      avatar_data: data.avatarData || {},
+      x: 0, // Spawn near entrance inside bank
+      y: 0,
+      z: 9.5,
+      yaw: 0,
+    };
+
+    rooms[roomName][socket.id] = playerData;
+    socket.currentRoom = roomName;
+
+    // Send existing bank occupants to the newly arrived player
+    socket.emit("currentPlayers", rooms[roomName]);
+    // Announce arrival to other players already inside the bank
+    socket.to(roomName).emit("playerJoined", playerData);
+
+    console.log(
+      `[Bank Join] ${playerData.username} (${socket.id}) entered the shared bank room.`,
+    );
+  });
+
   socket.on("updatePosition", (data) => {
     const r = socket.currentRoom;
     if (r && rooms[r] && rooms[r][socket.id]) {
