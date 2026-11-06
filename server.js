@@ -287,9 +287,13 @@ io.on("connection", (socket) => {
         }
       }
 
+      // const speechPayload = {
+      //   id: socket.id,
+      //   username: sender.username,
+      //   text: text,
+      // };
       const speechPayload = {
         id: socket.id,
-        username: sender.username,
         text: text,
       };
 
