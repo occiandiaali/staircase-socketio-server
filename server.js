@@ -212,7 +212,7 @@ io.on("connection", (socket) => {
       id: socket.id,
       userId: data.userId || socket.id,
       username: data.username || "Tycoon",
-      wallet: parseFloat(data.wallet) || 100.0,
+      wallet: parseFloat(data.wallet) || 50.0,
       avatar_data: data.avatarData || {},
       x: 0, // Spawn near entrance inside bank
       y: 0,
