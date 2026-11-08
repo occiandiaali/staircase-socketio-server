@@ -257,6 +257,11 @@ io.on("connection", (socket) => {
     rooms[roomName][socket.id] = playerData;
     socket.currentRoom = roomName;
 
+    // Send existing bank occupants to the newly arrived player
+    socket.emit("currentPlayers", rooms[roomName]);
+    // Announce arrival to other players already inside the bank
+    socket.to(roomName).emit("playerJoined", playerData);
+
     // Send welcome greeting to the joining player
     socket.emit("bakerGreeting", "Welcome! We have fresh bread & pastries!");
 
