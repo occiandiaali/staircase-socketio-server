@@ -184,9 +184,13 @@ io.on("connection", (socket) => {
       target_amt: parseFloat(target_amt) || 0.0,
       deadline: deadline || null,
       avatar_data: avatar_data || {},
-      x: (Math.random() - 0.5) * 6,
+      // x: (Math.random() - 0.5) * 6,
+      // y: 0,
+      // z: (Math.random() - 0.5) * 6,
+      // yaw: 0,
+      x: data.spawnX !== undefined ? data.spawnX : (Math.random() - 0.5) * 6,
       y: 0,
-      z: (Math.random() - 0.5) * 6,
+      z: data.spawnZ !== undefined ? data.spawnZ : (Math.random() - 0.5) * 6,
       yaw: 0,
     };
 
