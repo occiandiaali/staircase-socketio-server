@@ -204,7 +204,7 @@ io.on("connection", (socket) => {
     );
   });
 
-  // New listener
+  // New listeners
   // Handle player entering the public banking hall
   socket.on("joinBankRoom", (data) => {
     const roomName = "bank_room";
@@ -237,6 +237,34 @@ io.on("connection", (socket) => {
     );
   });
 
+  socket.on("joinBakeryRoom", (data) => {
+    const roomName = "bakery_room";
+    socket.join(roomName);
+
+    if (!rooms[roomName]) rooms[roomName] = {};
+
+    const playerData = {
+      id: socket.id,
+      username: data.username || "Tycoon",
+      wallet: parseFloat(data.wallet) || 100.0,
+      avatar_data: data.avatarData || {},
+      x: 0,
+      y: 0,
+      z: 9.0,
+      yaw: Math.PI,
+    };
+
+    rooms[roomName][socket.id] = playerData;
+    socket.currentRoom = roomName;
+
+    // Send welcome greeting to the joining player
+    socket.emit("bakerGreeting", "Welcome! We have fresh bread & pastries!");
+
+    console.log(
+      `[Bakery Join] ${playerData.username} (${socket.id}) entered the bakery.`,
+    );
+  });
+  //========================
   socket.on("updatePosition", (data) => {
     const r = socket.currentRoom;
     if (r && rooms[r] && rooms[r][socket.id]) {
