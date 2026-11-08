@@ -188,11 +188,9 @@ io.on("connection", (socket) => {
       // y: 0,
       // z: (Math.random() - 0.5) * 6,
       // yaw: 0,
-      x:
-        data.initialX !== undefined ? data.initialX : (Math.random() - 0.5) * 6,
+      x: data.spawnX !== undefined ? data.spawnX : (Math.random() - 0.5) * 6,
       y: 0,
-      z:
-        data.initialZ !== undefined ? data.initialZ : (Math.random() - 0.5) * 6,
+      z: data.spawnZ !== undefined ? data.spawnZ : (Math.random() - 0.5) * 6,
       yaw: 0,
     };
 
